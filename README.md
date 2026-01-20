@@ -22,20 +22,21 @@ PlateVision AI is a complete ANPR solution that detects vehicles in video footag
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| 🚘 **Vehicle Detection** | Detects cars, motorcycles, buses, and trucks using YOLOv8 |
+| Feature                        | Description                                                 |
+| ------------------------------ | ----------------------------------------------------------- |
+| 🚘 **Vehicle Detection**       | Detects cars, motorcycles, buses, and trucks using YOLOv8   |
 | 🔍 **License Plate Detection** | Custom-trained YOLOv8 model for accurate plate localization |
-| 📝 **Text Recognition** | EasyOCR engine with format validation and error correction |
-| 🎯 **Multi-Object Tracking** | SORT algorithm maintains vehicle IDs across frames |
-| 🎬 **Video Output** | Annotated video with bounding boxes and plate labels |
-| 📊 **CSV Export** | Frame-by-frame detection data export |
-| 🎨 **Modern UI** | iOS-style responsive web interface |
-| 📱 **Drag & Drop** | Easy video upload with drag-and-drop support |
+| 📝 **Text Recognition**        | EasyOCR engine with format validation and error correction  |
+| 🎯 **Multi-Object Tracking**   | SORT algorithm maintains vehicle IDs across frames          |
+| 🎬 **Video Output**            | Annotated video with bounding boxes and plate labels        |
+| 📊 **CSV Export**              | Frame-by-frame detection data export                        |
+| 🎨 **Modern UI**               | iOS-style responsive web interface                          |
+| 📱 **Drag & Drop**             | Easy video upload with drag-and-drop support                |
 
 ## 🎥 Demo
 
 ### Input vs Output
+
 ```
 ┌─────────────────────┐         ┌─────────────────────┐
 │                     │         │    ┌──────────┐     │
@@ -50,12 +51,14 @@ PlateVision AI is a complete ANPR solution that detects vehicles in video footag
 ### Web Interface
 
 **Upload Page:**
+
 - Clean iOS-style design
 - Drag & drop video upload
 - Real-time processing status
 - Feature highlights
 
 **Results Page:**
+
 - Video player with detections
 - Download annotated video
 - Export CSV data
@@ -72,37 +75,42 @@ PlateVision AI is a complete ANPR solution that detects vehicles in video footag
 ### Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/kishanpatel486630/Car_Numberplate_Detaction_Project_COD.git
    cd Car_Numberplate_Detaction_Project_COD
    ```
 
 2. **Create virtual environment**
+
    ```bash
    python -m venv .venv
-   
+
    # Windows
    .venv\Scripts\activate
-   
+
    # macOS/Linux
    source .venv/bin/activate
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Install PyTorch** (if not already installed)
+
    ```bash
    # CPU only
    pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-   
+
    # With CUDA (GPU support)
    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
    ```
 
 5. **Run the application**
+
    ```bash
    python app.py
    ```
@@ -125,11 +133,11 @@ PlateVision AI is a complete ANPR solution that detects vehicles in video footag
 ### Supported Video Formats
 
 | Format | Extension |
-|--------|-----------|
-| MP4 | `.mp4` |
-| AVI | `.avi` |
-| MOV | `.mov` |
-| MKV | `.mkv` |
+| ------ | --------- |
+| MP4    | `.mp4`    |
+| AVI    | `.avi`    |
+| MOV    | `.mov`    |
+| MKV    | `.mkv`    |
 
 **Max file size:** 500MB
 
@@ -147,22 +155,26 @@ PlateVision AI is a complete ANPR solution that detects vehicles in video footag
 ```
 
 ### Stage 1: Vehicle Detection
+
 - Uses YOLOv8 (yolov8n.pt) pre-trained on COCO dataset
 - Detects vehicles: cars (class 2), motorcycles (3), buses (5), trucks (7)
 - Outputs bounding boxes with confidence scores
 
 ### Stage 2: Object Tracking
+
 - SORT (Simple Online Realtime Tracking) algorithm
 - Kalman Filter for motion prediction
 - Hungarian Algorithm for detection-to-track assignment
 - Maintains unique IDs across video frames
 
 ### Stage 3: License Plate Detection
+
 - Custom YOLOv8 model trained on license plate dataset
 - Detects plates within vehicle bounding boxes
 - Works with various plate orientations and lighting
 
 ### Stage 4: Text Recognition
+
 - EasyOCR with English language model
 - Image preprocessing (grayscale, thresholding)
 - Format validation for standard plate patterns
@@ -170,15 +182,15 @@ PlateVision AI is a complete ANPR solution that detects vehicles in video footag
 
 ## 🔧 Tech Stack
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Backend** | Flask | Web server & API |
-| **Frontend** | HTML/CSS/JS | User interface |
-| **Detection** | YOLOv8 (Ultralytics) | Object detection |
-| **Tracking** | SORT | Multi-object tracking |
-| **OCR** | EasyOCR | Text recognition |
-| **Video** | OpenCV | Video processing |
-| **Data** | Pandas | CSV handling |
+| Component     | Technology           | Purpose               |
+| ------------- | -------------------- | --------------------- |
+| **Backend**   | Flask                | Web server & API      |
+| **Frontend**  | HTML/CSS/JS          | User interface        |
+| **Detection** | YOLOv8 (Ultralytics) | Object detection      |
+| **Tracking**  | SORT                 | Multi-object tracking |
+| **OCR**       | EasyOCR              | Text recognition      |
+| **Video**     | OpenCV               | Video processing      |
+| **Data**      | Pandas               | CSV handling          |
 
 ## 📁 Project Structure
 
@@ -209,13 +221,13 @@ PlateVision-AI/
 
 ## 📊 Performance
 
-| Metric | Value |
-|--------|-------|
-| Vehicle Detection Accuracy | ~95% |
-| Plate Detection Accuracy | ~90% |
-| OCR Accuracy | ~85% |
-| Processing Speed (CPU) | 1-5 FPS |
-| Processing Speed (GPU) | 15-30 FPS |
+| Metric                     | Value     |
+| -------------------------- | --------- |
+| Vehicle Detection Accuracy | ~95%      |
+| Plate Detection Accuracy   | ~90%      |
+| OCR Accuracy               | ~85%      |
+| Processing Speed (CPU)     | 1-5 FPS   |
+| Processing Speed (GPU)     | 15-30 FPS |
 
 ## 🎯 Use Cases
 
@@ -238,6 +250,7 @@ MAX_CONTENT_LENGTH=500000000  # 500MB
 ### Model Settings
 
 Edit `app.py` to adjust:
+
 - Detection confidence threshold
 - Vehicle classes to detect
 - OCR language settings
