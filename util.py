@@ -1,8 +1,19 @@
 import string
-import easyocr
+import os
 
-# Initialize the OCR reader
-reader = easyocr.Reader(['en'], gpu=False)
+# Lazy load easyocr to speed up cold starts
+_reader = None
+
+def get_ocr_reader():
+    """Lazy load OCR reader"""
+    global _reader
+    if _reader is None:
+        import easyocr
+        # Suppress verbose output
+        os.environ['EASYOCR_MODULE_PATH'] = '/tmp/.EasyOCR' if os.environ.get('VERCEL') == '1' else '.EasyOCR'
+        _reader = easyocr.Reader(['en'], gpu=False, verbose=False)
+        print("EasyOCR reader initialized")
+    return _reader
 
 # Mapping dictionaries for character conversion
 dict_char_to_int = {'O': '0',
@@ -115,7 +126,7 @@ def read_license_plate(license_plate_crop):
     Returns:
         tuple: Tuple containing the formatted license plate text and its confidence score.
     """
-
+    reader = get_ocr_reader()
     detections = reader.readtext(license_plate_crop)
 
     for detection in detections:

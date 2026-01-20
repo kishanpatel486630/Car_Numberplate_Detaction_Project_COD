@@ -1,23 +1,27 @@
 # Core dependencies for PlateVision AI
-flask>=2.3.0
-werkzeug>=2.3.0
+flask==2.3.3
+werkzeug==2.3.7
 
-# AI/ML Models
-ultralytics>=8.0.0
-easyocr>=1.7.0
+# AI/ML Models - pinned versions for stability
+ultralytics==8.0.196
+easyocr==1.7.1
 
-# Computer Vision
-opencv-python-headless>=4.7.0
+# Computer Vision (headless for serverless)
+opencv-python-headless==4.8.1.78
 
 # Data Processing
-pandas>=2.0.0
-numpy>=1.24.0
+pandas==2.0.3
+numpy==1.24.4
 
 # SORT Tracker dependencies
-scipy>=1.10.0
-filterpy>=1.4.5
+scipy==1.11.4
+filterpy==1.4.5
 
-# PyTorch CPU
+# PyTorch CPU (smaller size for serverless)
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch
-torchvision
+torch==2.1.0+cpu
+torchvision==0.16.0+cpu
+
+# Additional dependencies
+pillow>=9.0.0
+lapx>=0.5.2

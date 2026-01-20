@@ -1,37 +1,63 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, jsonify
 import os
 import time
+import sys
 from werkzeug.utils import secure_filename
+
+# Set environment before importing heavy libraries
+os.environ['YOLO_VERBOSE'] = 'False'
+
 import cv2
-from ultralytics import YOLO
-import torch
-from PIL import Image
-from sort.sort import Sort
-from util import get_car, read_license_plate, write_csv
 import numpy as np
 import pandas as pd
 
-# Fix for newer Pillow versions
-if not hasattr(Image, 'ANTIALIAS'):
-    Image.ANTIALIAS = Image.LANCZOS
+# Lazy load heavy ML libraries for faster cold starts
+_models_loaded = False
+_coco_model = None
+_license_plate_detector = None
 
-# Patch torch.load for PyTorch 2.6+
-_original_torch_load = torch.load
-def _patched_torch_load(*args, **kwargs):
-    kwargs['weights_only'] = False
-    return _original_torch_load(*args, **kwargs)
-torch.load = _patched_torch_load
+def load_models():
+    """Lazy load ML models"""
+    global _models_loaded, _coco_model, _license_plate_detector
+    if not _models_loaded:
+        from ultralytics import YOLO
+        import torch
+        from PIL import Image
+        
+        # Fix for newer Pillow versions
+        if not hasattr(Image, 'ANTIALIAS'):
+            Image.ANTIALIAS = Image.LANCZOS
+        
+        # Patch torch.load for PyTorch 2.6+
+        _original_torch_load = torch.load
+        def _patched_torch_load(*args, **kwargs):
+            kwargs['weights_only'] = False
+            return _original_torch_load(*args, **kwargs)
+        torch.load = _patched_torch_load
+        
+        # Get model paths
+        base_path = os.path.dirname(os.path.abspath(__file__))
+        yolo_path = os.path.join(base_path, 'yolov8n.pt')
+        plate_path = os.path.join(base_path, 'license_plate_detector.pt')
+        
+        _coco_model = YOLO(yolo_path)
+        _license_plate_detector = YOLO(plate_path)
+        _models_loaded = True
+        print("Models loaded successfully!")
+    
+    return _coco_model, _license_plate_detector
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-in-production')
+app.secret_key = os.environ.get('SECRET_KEY', 'platevision-secret-key-2024')
 
 # Use /tmp for Vercel serverless (writable directory)
-UPLOAD_FOLDER = '/tmp/uploads' if os.environ.get('VERCEL') else 'uploads'
-OUTPUT_FOLDER = '/tmp/outputs' if os.environ.get('VERCEL') else 'outputs'
+IS_VERCEL = os.environ.get('VERCEL') == '1'
+UPLOAD_FOLDER = '/tmp/uploads' if IS_VERCEL else 'uploads'
+OUTPUT_FOLDER = '/tmp/outputs' if IS_VERCEL else 'outputs'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB for serverless
+app.config['MAX_CONTENT_LENGTH'] = 25 * 1024 * 1024  # 25MB for serverless
 app.config['ALLOWED_EXTENSIONS'] = {'mp4', 'avi', 'mov', 'mkv'}
 
 # Create folders if they don't exist
@@ -41,12 +67,19 @@ os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
+# Health check endpoint for Vercel
+@app.route('/api/health')
+def health_check():
+    return jsonify({'status': 'ok', 'vercel': IS_VERCEL})
+
 def process_video(video_path, output_folder):
     """Process video with ANPR and return paths to results"""
+    from sort.sort import Sort
+    from util import get_car, read_license_plate, write_csv
+    
     try:
-        # Load models
-        coco_model = YOLO('yolov8n.pt')
-        license_plate_detector = YOLO('license_plate_detector.pt')
+        # Load models (lazy loading)
+        coco_model, license_plate_detector = load_models()
         
         mot_tracker = Sort()
         
@@ -344,6 +377,7 @@ def upload_file():
                                  output_video=os.path.basename(results['video']),
                                  timestamp=timestamp)
         except Exception as e:
+            print(f"Processing error: {str(e)}")
             flash(f'Error processing video: {str(e)}')
             return redirect(url_for('index'))
     else:
@@ -353,12 +387,32 @@ def upload_file():
 @app.route('/download/<timestamp>/<filename>')
 def download_file(timestamp, filename):
     filepath = os.path.join(app.config['OUTPUT_FOLDER'], timestamp, filename)
-    return send_file(filepath, as_attachment=True)
+    if os.path.exists(filepath):
+        return send_file(filepath, as_attachment=True)
+    else:
+        flash('File not found')
+        return redirect(url_for('index'))
 
 @app.route('/video/<timestamp>/<filename>')
 def serve_video(timestamp, filename):
     filepath = os.path.join(app.config['OUTPUT_FOLDER'], timestamp, filename)
-    return send_file(filepath, mimetype='video/x-msvideo')
+    if os.path.exists(filepath):
+        return send_file(filepath, mimetype='video/x-msvideo')
+    else:
+        return jsonify({'error': 'Video not found'}), 404
 
+# Error handlers
+@app.errorhandler(413)
+def too_large(e):
+    flash('File too large. Maximum size is 25MB.')
+    return redirect(url_for('index'))
+
+@app.errorhandler(500)
+def server_error(e):
+    return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
+
+# Vercel requires the app to be named 'app'
+# This is for local development only
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
