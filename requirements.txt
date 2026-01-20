@@ -7,7 +7,7 @@ ultralytics>=8.0.0
 easyocr>=1.7.0
 
 # Computer Vision
-opencv-python>=4.7.0
+opencv-python-headless>=4.7.0
 
 # Data Processing
 pandas>=2.0.0
@@ -17,5 +17,7 @@ numpy>=1.24.0
 scipy>=1.10.0
 filterpy>=1.4.5
 
-# PyTorch (install separately based on your system)
-# pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# PyTorch CPU
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision

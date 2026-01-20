@@ -23,10 +23,15 @@ def _patched_torch_load(*args, **kwargs):
 torch.load = _patched_torch_load
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-in-production'
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['OUTPUT_FOLDER'] = 'outputs'
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB max file size
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-in-production')
+
+# Use /tmp for Vercel serverless (writable directory)
+UPLOAD_FOLDER = '/tmp/uploads' if os.environ.get('VERCEL') else 'uploads'
+OUTPUT_FOLDER = '/tmp/outputs' if os.environ.get('VERCEL') else 'outputs'
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['OUTPUT_FOLDER'] = OUTPUT_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB for serverless
 app.config['ALLOWED_EXTENSIONS'] = {'mp4', 'avi', 'mov', 'mkv'}
 
 # Create folders if they don't exist
