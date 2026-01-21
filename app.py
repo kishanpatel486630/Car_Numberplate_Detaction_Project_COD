@@ -7,10 +7,22 @@ import urllib.request
 
 # Set environment before importing heavy libraries
 os.environ['YOLO_VERBOSE'] = 'False'
+os.environ['OMP_NUM_THREADS'] = '1'
 
-import cv2
-import numpy as np
-import pandas as pd
+# Check if running on Vercel
+IS_VERCEL = os.environ.get('VERCEL') == '1'
+
+# Import numpy and cv2 with error handling
+try:
+    import cv2
+    import numpy as np
+    import pandas as pd
+    CV2_AVAILABLE = True
+except ImportError as e:
+    print(f"Warning: OpenCV import failed: {e}")
+    CV2_AVAILABLE = False
+    np = None
+    pd = None
 
 # Lazy load heavy ML libraries for faster cold starts
 _models_loaded = False
@@ -78,7 +90,6 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'platevision-secret-key-2024')
 
 # Use /tmp for Vercel serverless (writable directory)
-IS_VERCEL = os.environ.get('VERCEL') == '1'
 UPLOAD_FOLDER = '/tmp/uploads' if IS_VERCEL else 'uploads'
 OUTPUT_FOLDER = '/tmp/outputs' if IS_VERCEL else 'outputs'
 
@@ -96,27 +107,44 @@ def allowed_file(filename):
 
 # Health check endpoint for Vercel
 @app.route('/api/health')
+@app.route('/health')
 def health_check():
     try:
-        coco_model, plate_detector = load_models()
-        models_status = {
-            'yolo': coco_model is not None,
-            'license_plate': plate_detector is not None
-        }
-        return jsonify({
+        status_info = {
             'status': 'ok', 
             'vercel': IS_VERCEL,
-            'models': models_status
-        })
+            'cv2_available': CV2_AVAILABLE,
+            'python_version': sys.version
+        }
+        
+        # Only try loading models if dependencies are available
+        if CV2_AVAILABLE:
+            try:
+                coco_model, plate_detector = load_models()
+                status_info['models'] = {
+                    'yolo': coco_model is not None,
+                    'license_plate': plate_detector is not None
+                }
+            except Exception as model_error:
+                status_info['models_error'] = str(model_error)
+        
+        return jsonify(status_info)
     except Exception as e:
         return jsonify({
             'status': 'error',
             'message': str(e),
+            'type': type(e).__name__,
             'vercel': IS_VERCEL
         }), 500
 
 @app.route('/')
 def index():
+    if not CV2_AVAILABLE and IS_VERCEL:
+        return jsonify({
+            'error': 'Application not fully initialized',
+            'message': 'Required dependencies are not available on this platform',
+            'suggestion': 'This application requires heavy ML dependencies. Consider using Railway, Render, or Hugging Face Spaces instead of Vercel.'
+        }), 503
     return render_template('index.html')
 
 def process_video(video_path, output_folder):
