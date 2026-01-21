@@ -1,24 +1,24 @@
-# Web Server (install first)
-gunicorn==21.2.0
+# Web Server - MUST BE INSTALLED
+gunicorn>=21.0.0
 
 # Core dependencies for PlateVision AI
-flask==2.3.3
-werkzeug==2.3.7
+flask>=2.3.0
+werkzeug>=2.3.0
 
 # AI/ML Models
-ultralytics==8.0.196
-easyocr==1.7.1
+ultralytics>=8.0.0
+easyocr>=1.7.0
 
 # Computer Vision (headless for server)
-opencv-python-headless==4.8.1.78
+opencv-python-headless>=4.8.0
 
 # Data Processing
-pandas==2.0.3
-numpy==1.24.4
+pandas>=2.0.0
+numpy>=1.24.0
 
 # SORT Tracker dependencies
-scipy==1.11.4
-filterpy==1.4.5
+scipy>=1.11.0
+filterpy>=1.4.0
 
 # PyTorch CPU
 torch
@@ -26,4 +26,4 @@ torchvision
 
 # Additional dependencies
 pillow>=9.0.0
-lapx>=0.5.2
+lapx>=0.5.0
