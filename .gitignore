@@ -9,13 +9,14 @@ __pycache__/
 *.class
 *.pyo
 
-# Large model files - DO NOT COMMIT
+# Large model files - DO NOT COMMIT (download at runtime instead)
 *.pt
 *.pth
 *.onnx
 *.h5
-*.pkl
 *.weights
+yolov8n.pt
+license_plate_detector.pt
 
 # Uploads and outputs (user data)
 uploads/*
@@ -29,7 +30,7 @@ outputs/*
 *.mov
 *.mkv
 
-# CSV results
+# CSV files
 test.csv
 test_interpolated.csv
 
