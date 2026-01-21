@@ -29,35 +29,48 @@ def load_models():
     """Lazy load ML models"""
     global _models_loaded, _coco_model, _license_plate_detector
     if not _models_loaded:
-        from ultralytics import YOLO
-        import torch
-        from PIL import Image
-        
-        # Fix for newer Pillow versions
-        if not hasattr(Image, 'ANTIALIAS'):
-            Image.ANTIALIAS = Image.LANCZOS
-        
-        # Patch torch.load for PyTorch 2.6+
-        _original_torch_load = torch.load
-        def _patched_torch_load(*args, **kwargs):
-            kwargs['weights_only'] = False
-            return _original_torch_load(*args, **kwargs)
-        torch.load = _patched_torch_load
-        
-        # Get model paths
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        yolo_path = os.path.join(base_path, 'yolov8n.pt')
-        plate_path = os.path.join(base_path, 'license_plate_detector.pt')
-        
-        # Download models if needed (for Vercel deployment)
-        # YOLOv8n is auto-downloaded by ultralytics
-        # For custom license plate detector, you'll need to host it somewhere
-        # Example: download_model_if_needed(plate_path, 'YOUR_MODEL_URL_HERE')
-        
-        _coco_model = YOLO(yolo_path)
-        _license_plate_detector = YOLO(plate_path)
-        _models_loaded = True
-        print("Models loaded successfully!")
+        try:
+            from ultralytics import YOLO
+            import torch
+            from PIL import Image
+            
+            # Fix for newer Pillow versions
+            if not hasattr(Image, 'ANTIALIAS'):
+                Image.ANTIALIAS = Image.LANCZOS
+            
+            # Patch torch.load for PyTorch 2.6+
+            _original_torch_load = torch.load
+            def _patched_torch_load(*args, **kwargs):
+                kwargs['weights_only'] = False
+                return _original_torch_load(*args, **kwargs)
+            torch.load = _patched_torch_load
+            
+            # Get model paths
+            base_path = os.path.dirname(os.path.abspath(__file__))
+            yolo_path = os.path.join(base_path, 'yolov8n.pt')
+            plate_path = os.path.join(base_path, 'license_plate_detector.pt')
+            
+            # For Vercel deployment - download license plate detector if not exists
+            # Upload your license_plate_detector.pt to GitHub Releases and uncomment:
+            # LICENSE_PLATE_MODEL_URL = 'https://github.com/kishanpatel486630/Car_Numberplate_Detaction_Project_COD/releases/download/v1.0.0/license_plate_detector.pt'
+            # if not os.path.exists(plate_path):
+            #     download_model_if_needed(plate_path, LICENSE_PLATE_MODEL_URL)
+            
+            print("Loading YOLO models...")
+            _coco_model = YOLO(yolo_path)  # YOLOv8n auto-downloads if missing
+            
+            if os.path.exists(plate_path):
+                _license_plate_detector = YOLO(plate_path)
+                print("Models loaded successfully!")
+            else:
+                print(f"Warning: {plate_path} not found. Upload required!")
+                _license_plate_detector = None
+                
+            _models_loaded = True
+            
+        except Exception as e:
+            print(f"Error loading models: {str(e)}")
+            raise
     
     return _coco_model, _license_plate_detector
 
@@ -84,7 +97,27 @@ def allowed_file(filename):
 # Health check endpoint for Vercel
 @app.route('/api/health')
 def health_check():
-    return jsonify({'status': 'ok', 'vercel': IS_VERCEL})
+    try:
+        coco_model, plate_detector = load_models()
+        models_status = {
+            'yolo': coco_model is not None,
+            'license_plate': plate_detector is not None
+        }
+        return jsonify({
+            'status': 'ok', 
+            'vercel': IS_VERCEL,
+            'models': models_status
+        })
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e),
+            'vercel': IS_VERCEL
+        }), 500
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 def process_video(video_path, output_folder):
     """Process video with ANPR and return paths to results"""
@@ -94,6 +127,9 @@ def process_video(video_path, output_folder):
     try:
         # Load models (lazy loading)
         coco_model, license_plate_detector = load_models()
+        
+        if license_plate_detector is None:
+            raise Exception("License plate detector model not found. Please upload license_plate_detector.pt to GitHub Releases.")
         
         mot_tracker = Sort()
         
