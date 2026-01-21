@@ -3,6 +3,7 @@ import os
 import time
 import sys
 from werkzeug.utils import secure_filename
+import urllib.request
 
 # Set environment before importing heavy libraries
 os.environ['YOLO_VERBOSE'] = 'False'
@@ -15,6 +16,14 @@ import pandas as pd
 _models_loaded = False
 _coco_model = None
 _license_plate_detector = None
+
+def download_model_if_needed(model_path, model_url):
+    """Download model file if it doesn't exist"""
+    if not os.path.exists(model_path):
+        print(f"Downloading {os.path.basename(model_path)}...")
+        os.makedirs(os.path.dirname(model_path) if os.path.dirname(model_path) else '.', exist_ok=True)
+        urllib.request.urlretrieve(model_url, model_path)
+        print(f"Downloaded {os.path.basename(model_path)}")
 
 def load_models():
     """Lazy load ML models"""
@@ -39,6 +48,11 @@ def load_models():
         base_path = os.path.dirname(os.path.abspath(__file__))
         yolo_path = os.path.join(base_path, 'yolov8n.pt')
         plate_path = os.path.join(base_path, 'license_plate_detector.pt')
+        
+        # Download models if needed (for Vercel deployment)
+        # YOLOv8n is auto-downloaded by ultralytics
+        # For custom license plate detector, you'll need to host it somewhere
+        # Example: download_model_if_needed(plate_path, 'YOUR_MODEL_URL_HERE')
         
         _coco_model = YOLO(yolo_path)
         _license_plate_detector = YOLO(plate_path)
