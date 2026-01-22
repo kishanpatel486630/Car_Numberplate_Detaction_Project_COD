@@ -7,11 +7,18 @@ services:
     region: oregon
     plan: free # 512MB RAM
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: streamlit run streamlit_app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true
+    startCommand: streamlit run streamlit_app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=false
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: RENDER
+        value: "1"
+      # Disable signal handling for threading compatibility
+      - key: YOLO_VERBOSE
+        value: "False"
+      - key: ULTRALYTICS_HUB_ENABLED
+        value: "False"
+      - key: FOR_DISABLE_CONSOLE_CTRL_HANDLER
         value: "1"
       # Aggressive thread limiting for memory optimization
       - key: OMP_NUM_THREADS

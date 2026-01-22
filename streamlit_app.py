@@ -2,10 +2,25 @@
 PlateVision AI - Streamlit Version (Lightweight & Memory Optimized)
 Automatic Number Plate Recognition using YOLOv8
 """
+import os
+import signal
+
+# Disable signal handlers for Render deployment (must be before any imports)
+os.environ['YOLO_VERBOSE'] = 'False'
+os.environ['ULTRALYTICS_HUB_ENABLED'] = 'False'
+
+# Disable signal handling to avoid threading issues
+def signal_handler(sig, frame):
+    pass
+try:
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+except (ValueError, OSError):
+    pass  # Ignore if signals don't work in this thread
+
 import streamlit as st
 import cv2
 import gc
-import os
 import tempfile
 import time
 from pathlib import Path
