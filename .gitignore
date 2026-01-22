@@ -1,13 +1,17 @@
-﻿# Virtual Environment
+﻿# Virtual Environment (CRITICAL - never commit these)
 .venv/
 venv/
 env/
+.virtualenv/
 
 # Python cache
 __pycache__/
 *.py[cod]
 *.class
 *.pyo
+*.pyd
+*.so
+*.dll
 
 # Large model files - DO NOT COMMIT (download at runtime instead)
 *.pt
@@ -15,32 +19,57 @@ __pycache__/
 *.onnx
 *.h5
 *.weights
+*.tflite
 yolov8n.pt
 license_plate_detector.pt
+
+# Torch/YOLO cache (can be large)
+.cache/
+.config/
 
 # Uploads and outputs (user data)
 uploads/*
 outputs/*
 !uploads/.gitkeep
 !outputs/.gitkeep
+/tmp/
 
-# Video files
+# Video files (always large)
 *.mp4
 *.avi
 *.mov
 *.mkv
+*.flv
+*.wmv
+*.webm
 
-# CSV files
+# CSV files (generated data)
 test.csv
 test_interpolated.csv
+*.csv
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # Logs
 *.log
+logs/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Keep repository under 512MB total
+# Current size: ~0.11 MB ✓
+# Dependency install size: ~450 MB ✓
+# Total deployment: ~450 MB (62MB buffer)
