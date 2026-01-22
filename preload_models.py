@@ -1,52 +1,35 @@
 #!/usr/bin/env python3
 """
-Preload models with aggressive memory management for Render deployment
+Download model files without loading them to avoid memory spike during build
 """
 import os
-import gc
-import torch
-from ultralytics import YOLO
-
-# Set environment variables for memory optimization
-os.environ['OMP_NUM_THREADS'] = '1'
-os.environ['OPENBLAS_NUM_THREADS'] = '1'
-os.environ['MKL_NUM_THREADS'] = '1'
-os.environ['TORCH_HOME'] = '/tmp/.cache/torch'
-os.environ['YOLO_CONFIG_DIR'] = '/tmp/.config/Ultralytics'
+import urllib.request
 
 print("=" * 60)
-print("PRELOADING MODELS WITH MEMORY OPTIMIZATION")
+print("DOWNLOADING MODEL FILES (NO LOADING)")
 print("=" * 60)
 
-try:
-    # Force garbage collection
-    gc.collect()
-    
-    # Load YOLOv8n with minimal settings
-    print("\n1. Loading yolov8n.pt...")
-    model1 = YOLO('yolov8n.pt')
-    model1.overrides['verbose'] = False
-    print("✓ yolov8n.pt loaded")
-    
-    # Force cleanup
-    del model1
-    gc.collect()
-    
-    print("\n2. Loading license_plate_detector.pt...")
-    model2 = YOLO('license_plate_detector.pt')
-    model2.overrides['verbose'] = False
-    print("✓ license_plate_detector.pt loaded")
-    
-    # Final cleanup
-    del model2
-    gc.collect()
-    
-    print("\n" + "=" * 60)
-    print("ALL MODELS PRELOADED SUCCESSFULLY")
-    print("=" * 60)
-    
-except Exception as e:
-    print(f"\n✗ ERROR: {str(e)}")
-    import traceback
-    traceback.print_exc()
-    exit(1)
+# Set cache directories
+os.makedirs('/tmp/.cache/torch', exist_ok=True)
+os.makedirs('/tmp/.config/Ultralytics', exist_ok=True)
+
+models = {
+    'yolov8n.pt': 'https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.pt',
+    # license_plate_detector.pt should be in your repo or add download URL
+}
+
+for model_name, url in models.items():
+    if not os.path.exists(model_name):
+        print(f"\nDownloading {model_name}...")
+        try:
+            urllib.request.urlretrieve(url, model_name)
+            print(f"✓ {model_name} downloaded")
+        except Exception as e:
+            print(f"✗ Could not download {model_name}: {e}")
+            print("  (Will download at runtime)")
+    else:
+        print(f"✓ {model_name} already exists")
+
+print("\n" + "=" * 60)
+print("MODEL FILES READY")
+print("=" * 60)
