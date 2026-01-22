@@ -3,36 +3,41 @@
 ## 🔄 Memory Issue Fix
 
 ### Problem
+
 Render deployment was failing with "Out of memory (used over 512Mi)" at 99% model download.
 
 ### Solution
+
 Changed `preload_models.py` to **download** model files without **loading** them:
+
 - ✅ Downloads models during build phase (no memory spike)
 - ✅ Models load at first request (lazy loading)
 - ✅ Aggressive garbage collection
 
 ## 📊 Flask vs Streamlit Comparison
 
-| Feature | Flask Version | Streamlit Version |
-|---------|--------------|-------------------|
-| **Memory Usage** | ~450MB | ~430MB ⭐ |
-| **Setup Complexity** | Medium | Low ⭐ |
-| **UI Quality** | Custom HTML/CSS | Built-in components ⭐ |
-| **Development Speed** | Slower | Faster ⭐ |
-| **ML Integration** | Manual | Native ⭐ |
-| **File Upload** | Custom code | Built-in ⭐ |
-| **Caching** | Manual | @st.cache_resource ⭐ |
-| **Best For** | Production APIs | ML Demos ⭐ |
+| Feature               | Flask Version   | Streamlit Version      |
+| --------------------- | --------------- | ---------------------- |
+| **Memory Usage**      | ~450MB          | ~430MB ⭐              |
+| **Setup Complexity**  | Medium          | Low ⭐                 |
+| **UI Quality**        | Custom HTML/CSS | Built-in components ⭐ |
+| **Development Speed** | Slower          | Faster ⭐              |
+| **ML Integration**    | Manual          | Native ⭐              |
+| **File Upload**       | Custom code     | Built-in ⭐            |
+| **Caching**           | Manual          | @st.cache_resource ⭐  |
+| **Best For**          | Production APIs | ML Demos ⭐            |
 
 ## 🚀 Which Should You Use?
 
 ### Use Flask if:
+
 - You need REST API endpoints
 - You want full control over HTML/CSS
 - You're integrating with existing Flask apps
 - You need custom authentication
 
 ### Use Streamlit if: ⭐ **RECOMMENDED**
+
 - You want a quick ML demo
 - You prefer Python-only (no HTML/CSS)
 - You want built-in UI components
@@ -42,6 +47,7 @@ Changed `preload_models.py` to **download** model files without **loading** them
 ## 📝 How to Deploy
 
 ### Option 1: Flask (Current)
+
 ```bash
 # Uses render.yaml
 git push origin main
@@ -49,6 +55,7 @@ git push origin main
 ```
 
 ### Option 2: Streamlit (Recommended)
+
 ```bash
 # Option A: Update render.yaml
 cp render-streamlit.yaml render.yaml
@@ -65,6 +72,7 @@ git push origin main
 ## 🎨 Streamlit Features
 
 ### Built-in Components Used:
+
 - `st.file_uploader()` - Drag & drop video upload
 - `st.progress()` - Real-time processing progress
 - `st.download_button()` - One-click download
@@ -73,6 +81,7 @@ git push origin main
 - `st.cache_resource()` - Model caching
 
 ### Memory Optimizations:
+
 - Models loaded once and cached
 - Automatic cleanup of temp files
 - Progress updates every 10 frames
@@ -81,6 +90,7 @@ git push origin main
 ## 💡 Recommendation
 
 **Switch to Streamlit!** It's:
+
 - ✅ 20MB lighter in memory
 - ✅ Easier to maintain
 - ✅ Better for ML projects
@@ -90,12 +100,14 @@ git push origin main
 ## 🔧 Local Testing
 
 ### Flask:
+
 ```bash
 python app.py
 # Open http://127.0.0.1:5000
 ```
 
 ### Streamlit:
+
 ```bash
 streamlit run streamlit_app.py
 # Opens automatically in browser
@@ -104,15 +116,18 @@ streamlit run streamlit_app.py
 ## 📦 What Changed
 
 ### Files Added:
+
 - `streamlit_app.py` - Main Streamlit application
 - `render-streamlit.yaml` - Streamlit deployment config
 - `DEPLOYMENT_COMPARISON.md` - This file
 
 ### Files Modified:
+
 - `preload_models.py` - Now only downloads, doesn't load (saves memory)
 - `requirements.txt` - Added streamlit>=1.28.0
 
 ### Files Kept:
+
 - `app.py` - Flask version (still works)
 - `render.yaml` - Flask deployment (still works)
 - All other files unchanged

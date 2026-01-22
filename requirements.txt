@@ -1,8 +1,7 @@
-# Core dependencies for PlateVision AI - Optimized for 512MB limit
-# Total estimated installed size: ~450MB (leaving 62MB buffer)
+# PlateVision AI - Streamlit Version (Optimized for 512MB)
+# Total estimated installed size: ~430MB (82MB buffer)
 
-# Web Framework (choose one)
-flask>=3.0.0
+# Web Framework
 streamlit>=1.28.0
 
 # AI/ML Models (lightweight version)

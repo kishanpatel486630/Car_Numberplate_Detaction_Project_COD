@@ -27,26 +27,13 @@ license_plate_detector.pt
 .cache/
 .config/
 
-# Uploads and outputs (user data)
-uploads/*
-outputs/*
-!uploads/.gitkeep
-!outputs/.gitkeep
+# Uploads and outputs (temporary files)
 /tmp/
-
-# Video files (always large)
+*.csv
 *.mp4
 *.avi
 *.mov
 *.mkv
-*.flv
-*.wmv
-*.webm
-
-# CSV files (generated data)
-test.csv
-test_interpolated.csv
-*.csv
 
 # IDE
 .vscode/

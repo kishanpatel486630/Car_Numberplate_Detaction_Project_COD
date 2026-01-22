@@ -24,16 +24,16 @@ PlateVision AI is a production-ready ANPR solution optimized for cloud deploymen
 
 ## ✨ Features
 
-| Feature                        | Description                                                 |
-| ------------------------------ | ----------------------------------------------------------- |
-| 🚘 **Vehicle Detection**       | YOLOv8 detects cars, motorcycles, buses, trucks            |
-| 🔍 **License Plate Detection** | Custom-trained YOLOv8 model for plate localization         |
-| 📝 **Plate Identification**    | Hash-based unique plate IDs (OCR-ready)                     |
-| 🎯 **Multi-Object Tracking**   | SORT algorithm maintains vehicle IDs across frames          |
-| 🎬 **Video Output**            | Annotated video with bounding boxes and plate labels        |
-| 📊 **CSV Export**              | Frame-by-frame detection data export                        |
-| 🎨 **Modern UI**               | iOS-style responsive web interface                          |
-| 🧹 **Auto-Cleanup**            | Files deleted after download (no storage bloat)             |
+| Feature                        | Description                                          |
+| ------------------------------ | ---------------------------------------------------- |
+| 🚘 **Vehicle Detection**       | YOLOv8 detects cars, motorcycles, buses, trucks      |
+| 🔍 **License Plate Detection** | Custom-trained YOLOv8 model for plate localization   |
+| 📝 **Plate Identification**    | Hash-based unique plate IDs (OCR-ready)              |
+| 🎯 **Multi-Object Tracking**   | SORT algorithm maintains vehicle IDs across frames   |
+| 🎬 **Video Output**            | Annotated video with bounding boxes and plate labels |
+| 📊 **CSV Export**              | Frame-by-frame detection data export                 |
+| 🎨 **Modern UI**               | iOS-style responsive web interface                   |
+| 🧹 **Auto-Cleanup**            | Files deleted after download (no storage bloat)      |
 
 ## 🎥 Demo
 
@@ -49,7 +49,6 @@ PlateVision AI is a production-ready ANPR solution optimized for cloud deploymen
 │                     │         │  🔴 │ [PLATE] │     │
 └─────────────────────┘         └─────────────────────┘
 ```
-
 
 ## 🚀 Quick Start
 
@@ -84,6 +83,7 @@ Open http://127.0.0.1:5000 in your browser.
 4. **Health check:** Endpoint at `/`
 
 **Configuration:**
+
 - Runtime: Python 3.11
 - Start command: `python app.py`
 - Build command: `pip install -r requirements.txt`
@@ -175,13 +175,13 @@ PlateVision-AI/
 
 ## 📊 Performance
 
-| Metric                     | Value     |
-| -------------------------- | --------- |
-| Vehicle Detection          | ~95%      |
-| Plate Detection            | ~90%      |
-| Processing Speed (CPU)     | 1-5 FPS   |
-| Memory Usage               | ~500MB    |
-| Startup Time (cold start)  | ~30s      |
+| Metric                    | Value   |
+| ------------------------- | ------- |
+| Vehicle Detection         | ~95%    |
+| Plate Detection           | ~90%    |
+| Processing Speed (CPU)    | 1-5 FPS |
+| Memory Usage              | ~500MB  |
+| Startup Time (cold start) | ~30s    |
 
 ## 🔑 Key Optimizations
 
@@ -192,7 +192,6 @@ PlateVision-AI/
 ✅ **Direct downloads:** No persistent storage  
 ✅ **CPU-only PyTorch:** Smaller footprint  
 ✅ **Headless OpenCV:** No GUI dependencies
-
 
 ## 🤝 Contributing
 
