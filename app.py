@@ -34,8 +34,22 @@ def load_models():
     """Load models once and cache them to save memory"""
     if _models_cache['coco'] is None:
         print("Loading YOLO models...")
+        
+        # Force garbage collection before loading
+        gc.collect()
+        
+        # Load models with minimal settings for memory efficiency
         _models_cache['coco'] = YOLO('yolov8n.pt')
+        _models_cache['coco'].overrides['verbose'] = False
+        
+        # Clear cache between model loads
+        gc.collect()
+        
         _models_cache['plate'] = YOLO('license_plate_detector.pt')
+        _models_cache['plate'].overrides['verbose'] = False
+        
+        # Final cleanup
+        gc.collect()
         print("Models loaded successfully!")
     return _models_cache['coco'], _models_cache['plate']
 
@@ -80,11 +94,15 @@ def download_model_if_needed(filename, url=None):
 # LICENSE_PLATE_URL = 'https://github.com/kishanpatel486630/Car_Numberplate_Detaction_Project_COD/releases/download/v1.0.0/license_plate_detector.pt'
 # download_model_if_needed('license_plate_detector.pt', LICENSE_PLATE_URL)
 
+# Set environment variables for memory optimization
+os.environ['TORCH_HOME'] = '/tmp/.cache/torch' if os.environ.get('RENDER') else '.cache/torch'
+os.environ['YOLO_CONFIG_DIR'] = '/tmp/.config/Ultralytics' if os.environ.get('RENDER') else '.config/Ultralytics'
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-in-production')
 app.config['UPLOAD_FOLDER'] = '/tmp/uploads' if os.environ.get('RENDER') else 'uploads'
 app.config['OUTPUT_FOLDER'] = '/tmp/outputs' if os.environ.get('RENDER') else 'outputs'
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max for memory efficiency
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max for memory efficiency
 app.config['ALLOWED_EXTENSIONS'] = {'mp4', 'avi', 'mov', 'mkv'}
 
 # Create folders if they don't exist

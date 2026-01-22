@@ -5,7 +5,7 @@ services:
     runtime: python
     region: oregon
     plan: free # 512MB RAM
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && python preload_models.py
     startCommand: python app.py
     envVars:
       - key: PYTHON_VERSION
@@ -15,6 +15,16 @@ services:
       - key: RENDER
         value: "1"
       - key: PYTORCH_ENABLE_MPS_FALLBACK
+        value: "1"
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"
+      - key: MKL_NUM_THREADS
+        value: "1"
+      - key: VECLIB_MAXIMUM_THREADS
+        value: "1"
+      - key: NUMEXPR_NUM_THREADS
         value: "1"
     autoDeploy: true
     healthCheckPath: /
