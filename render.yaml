@@ -1,4 +1,5 @@
 # Render.com deployment configuration - Streamlit (Optimized for 512MB)
+# Force configuration reload - Updated Jan 22, 2026
 services:
   - type: web
     name: platevision-ai-streamlit
