@@ -4,7 +4,7 @@ services:
     name: platevision-ai
     runtime: python
     region: oregon
-    plan: free  # 512MB RAM
+    plan: free # 512MB RAM
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: python app.py
     envVars:

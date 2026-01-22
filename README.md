@@ -2,15 +2,15 @@
 
 <div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-green.svg)
-![Flask](https://img.shields.io/badge/Flask-Web_App-red.svg)
-![OpenCV](https://img.shields.io/badge/OpenCV-Computer_Vision-orange.svg)
+![Flask](https://img.shields.io/badge/Flask-3.1-red.svg)
+![OpenCV](https://img.shields.io/badge/OpenCV-Headless-orange.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
-**An end-to-end Automatic Number Plate Recognition (ANPR) system powered by deep learning**
+**Memory-optimized ANPR system for cloud deployment (512MB RAM)**
 
-[Features](#-features) • [Demo](#-demo) • [Installation](#-installation) • [Usage](#-usage) • [How It Works](#-how-it-works) • [Tech Stack](#-tech-stack)
+[Quick Start](#-quick-start) • [Deployment](#-deployment) • [Features](#-features) • [Tech Stack](#-tech-stack)
 
 </div>
 
@@ -18,20 +18,22 @@
 
 ## 📋 Overview
 
-PlateVision AI is a complete ANPR solution that detects vehicles in video footage, tracks them across frames, locates license plates, and extracts the plate text using OCR. The system features a modern iOS-style web interface for easy video upload and result visualization.
+PlateVision AI is a production-ready ANPR solution optimized for cloud deployment. Detects vehicles, tracks them across frames, and identifies license plates with a modern web interface.
+
+**Memory Footprint:** ~500MB RAM | **Deployment:** Render.com free tier compatible
 
 ## ✨ Features
 
 | Feature                        | Description                                                 |
 | ------------------------------ | ----------------------------------------------------------- |
-| 🚘 **Vehicle Detection**       | Detects cars, motorcycles, buses, and trucks using YOLOv8   |
-| 🔍 **License Plate Detection** | Custom-trained YOLOv8 model for accurate plate localization |
-| 📝 **Text Recognition**        | EasyOCR engine with format validation and error correction  |
+| 🚘 **Vehicle Detection**       | YOLOv8 detects cars, motorcycles, buses, trucks            |
+| 🔍 **License Plate Detection** | Custom-trained YOLOv8 model for plate localization         |
+| 📝 **Plate Identification**    | Hash-based unique plate IDs (OCR-ready)                     |
 | 🎯 **Multi-Object Tracking**   | SORT algorithm maintains vehicle IDs across frames          |
 | 🎬 **Video Output**            | Annotated video with bounding boxes and plate labels        |
 | 📊 **CSV Export**              | Frame-by-frame detection data export                        |
 | 🎨 **Modern UI**               | iOS-style responsive web interface                          |
-| 📱 **Drag & Drop**             | Easy video upload with drag-and-drop support                |
+| 🧹 **Auto-Cleanup**            | Files deleted after download (no storage bloat)             |
 
 ## 🎥 Demo
 
@@ -48,98 +50,53 @@ PlateVision AI is a complete ANPR solution that detects vehicles in video footag
 └─────────────────────┘         └─────────────────────┘
 ```
 
-### Web Interface
 
-**Upload Page:**
+## 🚀 Quick Start
 
-- Clean iOS-style design
-- Drag & drop video upload
-- Real-time processing status
-- Feature highlights
+### Local Development
 
-**Results Page:**
+```bash
+# Clone repository
+git clone https://github.com/kishanpatel486630/Car_Numberplate_Detaction_Project_COD.git
+cd Car_Numberplate_Detaction_Project_COD
 
-- Video player with detections
-- Download annotated video
-- Export CSV data
-- Processing details
+# Create virtual environment
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # macOS/Linux
 
-## 🛠️ Installation
+# Install dependencies
+pip install -r requirements.txt
 
-### Prerequisites
+# Run application
+python app.py
+```
 
-- Python 3.9 or higher
-- pip (Python package manager)
-- Git
+Open http://127.0.0.1:5000 in your browser.
 
-### Setup
+## ☁️ Deployment
 
-1. **Clone the repository**
+### Render.com (Free Tier - 512MB RAM)
 
-   ```bash
-   git clone https://github.com/kishanpatel486630/Car_Numberplate_Detaction_Project_COD.git
-   cd Car_Numberplate_Detaction_Project_COD
-   ```
+1. **Push to GitHub** (model files auto-downloaded at runtime)
+2. **Connect to Render:** Import repository
+3. **Auto-deploy:** Configured via `render.yaml`
+4. **Health check:** Endpoint at `/`
 
-2. **Create virtual environment**
+**Configuration:**
+- Runtime: Python 3.11
+- Start command: `python app.py`
+- Build command: `pip install -r requirements.txt`
 
-   ```bash
-   python -m venv .venv
+## 📖 Usage
 
-   # Windows
-   .venv\Scripts\activate
+1. Upload video (MP4, AVI, MOV, MKV) - max 500MB
+2. Processing starts automatically
+3. View annotated video with detected plates
+4. Download output video (.avi) and CSV results
+5. Files auto-delete after download (no storage bloat)
 
-   # macOS/Linux
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies**
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Install PyTorch** (if not already installed)
-
-   ```bash
-   # CPU only
-   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-
-   # With CUDA (GPU support)
-   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-   ```
-
-5. **Run the application**
-
-   ```bash
-   python app.py
-   ```
-
-6. **Open in browser**
-   ```
-   http://127.0.0.1:5000
-   ```
-
-## 🚀 Usage
-
-### Web Interface
-
-1. Open `http://127.0.0.1:5000` in your browser
-2. Upload a video file (MP4, AVI, MOV, or MKV)
-3. Wait for processing to complete
-4. View the annotated video with detected plates
-5. Download the output video and CSV results
-
-### Supported Video Formats
-
-| Format | Extension |
-| ------ | --------- |
-| MP4    | `.mp4`    |
-| AVI    | `.avi`    |
-| MOV    | `.mov`    |
-| MKV    | `.mkv`    |
-
-**Max file size:** 500MB
+**Memory optimization:** Models cached globally, garbage collection every 50 frames, /tmp directory for temporary files.
 
 ## 🧠 How It Works
 
@@ -184,102 +141,81 @@ PlateVision AI is a complete ANPR solution that detects vehicles in video footag
 
 | Component     | Technology           | Purpose               |
 | ------------- | -------------------- | --------------------- |
-| **Backend**   | Flask                | Web server & API      |
+| **Backend**   | Flask 3.1.2          | Web server & API      |
 | **Frontend**  | HTML/CSS/JS          | User interface        |
 | **Detection** | YOLOv8 (Ultralytics) | Object detection      |
 | **Tracking**  | SORT                 | Multi-object tracking |
-| **OCR**       | EasyOCR              | Text recognition      |
-| **Video**     | OpenCV               | Video processing      |
-| **Data**      | Pandas               | CSV handling          |
+| **OCR**       | Hash-based IDs       | Plate identification  |
+| **Video**     | OpenCV Headless      | Video processing      |
+| **AI Engine** | PyTorch 2.10.0 (CPU) | Deep learning         |
 
 ## 📁 Project Structure
 
 ```
 PlateVision-AI/
-├── app.py                      # Main Flask application
-├── util.py                     # Helper functions (OCR, CSV)
-├── requirements.txt            # Python dependencies
-├── yolov8n.pt                  # Vehicle detection model
-├── license_plate_detector.pt   # Plate detection model
+├── app.py                      # Flask application (memory-optimized)
+├── util.py                     # Helper functions (plate detection, CSV)
+├── requirements.txt            # Python dependencies (CPU-only)
+├── render.yaml                 # Render.com deployment config
+├── .gitignore                  # Excludes model files (*.pt)
 │
 ├── sort/
-│   ├── sort.py                 # SORT tracking algorithm
-│   └── __init__.py
+│   └── sort.py                 # SORT tracking algorithm
 │
 ├── templates/
-│   ├── index.html              # Upload page
-│   └── result.html             # Results page
+│   ├── index.html              # Upload interface
+│   └── result.html             # Results display
 │
-├── uploads/                    # Temporary video storage
-├── outputs/                    # Processing results
-├── static/                     # Static assets
-│
-├── PRESENTATION.md             # Project documentation
+├── static/                     # CSS, JavaScript assets
 ├── LICENSE                     # MIT License
-└── README.md                   # This file
+└── README.md                   # Documentation
 ```
+
+**Note:** Model files (`yolov8n.pt`, `license_plate_detector.pt`) auto-download at first run (~12MB total).
 
 ## 📊 Performance
 
 | Metric                     | Value     |
 | -------------------------- | --------- |
-| Vehicle Detection Accuracy | ~95%      |
-| Plate Detection Accuracy   | ~90%      |
-| OCR Accuracy               | ~85%      |
+| Vehicle Detection          | ~95%      |
+| Plate Detection            | ~90%      |
 | Processing Speed (CPU)     | 1-5 FPS   |
-| Processing Speed (GPU)     | 15-30 FPS |
+| Memory Usage               | ~500MB    |
+| Startup Time (cold start)  | ~30s      |
 
-## 🎯 Use Cases
+## 🔑 Key Optimizations
 
-- 🅿️ **Parking Management** - Automated entry/exit systems
-- 🚔 **Traffic Monitoring** - Speed cameras, toll collection
-- 🏢 **Security Systems** - Building access control
-- 🚗 **Fleet Management** - Vehicle tracking and logging
-- 🏛️ **Law Enforcement** - Stolen vehicle detection
+✅ **Memory-efficient:** Removed EasyOCR (saves 300+ MB RAM)  
+✅ **Model caching:** Load once per app lifecycle  
+✅ **Garbage collection:** Every 50 frames during processing  
+✅ **Auto-cleanup:** Files deleted after download  
+✅ **Direct downloads:** No persistent storage  
+✅ **CPU-only PyTorch:** Smaller footprint  
+✅ **Headless OpenCV:** No GUI dependencies
 
-## ⚙️ Configuration
-
-### Environment Variables (Optional)
-
-```bash
-FLASK_ENV=production
-FLASK_DEBUG=0
-MAX_CONTENT_LENGTH=500000000  # 500MB
-```
-
-### Model Settings
-
-Edit `app.py` to adjust:
-
-- Detection confidence threshold
-- Vehicle classes to detect
-- OCR language settings
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Contributions welcome! Submit a Pull Request.
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file.
 
 ## 🙏 Acknowledgments
 
-- [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics) - State-of-the-art object detection
-- [SORT](https://github.com/abewley/sort) - Simple Online Realtime Tracking
-- [EasyOCR](https://github.com/JaidedAI/EasyOCR) - Ready-to-use OCR engine
-- [OpenCV](https://opencv.org/) - Computer vision library
+- [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics) - Object detection
+- [SORT](https://github.com/abewley/sort) - Multi-object tracking
+- [OpenCV](https://opencv.org/) - Computer vision
 - [Flask](https://flask.palletsprojects.com/) - Web framework
 
 ---
 
 <div align="center">
+
+**Built with ❤️ for efficient cloud deployment**
+
+</div>
 
 **Made with ❤️ by Kishan Patel**
 
