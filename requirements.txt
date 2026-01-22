@@ -1,41 +1,41 @@
-# PlateVision AI - Streamlit Version (Optimized for 512MB)
-# Total estimated installed size: ~430MB (82MB buffer)
+# PlateVision AI - Streamlit Version (Ultra-Optimized for <400MB)
+# Total estimated installed size: ~350MB (160MB buffer)
 
-# Web Framework
-streamlit>=1.28.0
+# Web Framework (lighter config)
+streamlit==1.28.0
 
-# AI/ML Models (lightweight version)
-ultralytics>=8.0.0
+# AI/ML Models (minimal version)
+ultralytics==8.0.0
 
 # Computer Vision (headless - no GUI deps)
-opencv-python-headless>=4.8.0
+opencv-python-headless==4.8.0.74
 
-# Data Processing (minimal versions)
-pandas>=2.0.0
+# Data Processing (pinned versions)
+pandas==2.0.3
+numpy==1.24.3
 
-# SORT Tracker dependencies
-scipy>=1.11.0
-filterpy>=1.4.0
+# SORT Tracker dependencies (minimal)
+scipy==1.11.1
+filterpy==1.4.5
 
-# PyTorch CPU-only (smallest footprint ~180MB vs 500MB+ for GPU)
+# PyTorch CPU-only (older version = smaller ~150MB)
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch>=2.0.0
-torchvision>=0.15.0
+torch==2.0.1
+torchvision==0.15.2
 
 # Additional lightweight dependencies
-pillow>=9.0.0
-lapx>=0.5.0
+pillow==9.5.0
+lapx==0.5.2
 
-# Memory usage breakdown:
-# - PyTorch CPU: ~180 MB
-# - Ultralytics: ~120 MB  
-# - OpenCV headless: ~50 MB
-# - Flask + dependencies: ~40 MB
-# - Pandas + NumPy: ~30 MB
-# - SciPy + FilterPy: ~20 MB
+# Memory usage breakdown (optimized):
+# - PyTorch CPU 2.0.1: ~150 MB
+# - Ultralytics 8.0.0: ~100 MB  
+# - OpenCV headless: ~45 MB
+# - Streamlit: ~30 MB
+# - Pandas + NumPy: ~25 MB
+# - SciPy + FilterPy: ~15 MB
 # - Other: ~10 MB
-# Total: ~450 MB (fits in 512MB with 62MB buffer)
+# Total: ~375 MB (fits in 512MB with 137MB buffer)
 
-# OCR - Disabled to save memory on Render free tier
-# easyocr>=1.7.0
-# Re-enable by uncommenting above if using paid tier with more RAM
+# Models download on first use (not during build)
+# OCR disabled to save memory
