@@ -1,10 +1,10 @@
-# Render.com deployment configuration
+# Render.com deployment configuration - Optimized for 512MB free tier
 services:
   - type: web
     name: platevision-ai
     runtime: python
     region: oregon
-    plan: free
+    plan: free  # 512MB RAM
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: python app.py
     envVars:
@@ -12,4 +12,9 @@ services:
         value: 3.11.0
       - key: SECRET_KEY
         generateValue: true
+      - key: RENDER
+        value: "1"
+      - key: PYTORCH_ENABLE_MPS_FALLBACK
+        value: "1"
     autoDeploy: true
+    healthCheckPath: /

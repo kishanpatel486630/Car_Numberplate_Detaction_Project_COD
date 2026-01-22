@@ -7,7 +7,6 @@ werkzeug>=2.3.0
 
 # AI/ML Models
 ultralytics>=8.0.0
-easyocr>=1.7.0
 
 # Computer Vision (headless for server)
 opencv-python-headless>=4.8.0
@@ -20,10 +19,15 @@ numpy>=1.24.0
 scipy>=1.11.0
 filterpy>=1.4.0
 
-# PyTorch CPU
+# PyTorch CPU-only (smaller memory footprint)
+--extra-index-url https://download.pytorch.org/whl/cpu
 torch
 torchvision
 
 # Additional dependencies
 pillow>=9.0.0
 lapx>=0.5.0
+
+# OCR - Disabled to save memory on Render free tier
+# easyocr>=1.7.0
+# Re-enable by uncommenting above if using paid tier with more RAM

@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, send_file, flash
+from flask import Flask, render_template, request, redirect, url_for, send_file, flash, after_this_request
 import os
 import time
+import gc
+import shutil
 from werkzeug.utils import secure_filename
 import urllib.request
 import cv2
@@ -25,6 +27,37 @@ def _patched_torch_load(*args, **kwargs):
     return _original_torch_load(*args, **kwargs)
 torch.load = _patched_torch_load
 
+# Global model cache - load once, reuse
+_models_cache = {'coco': None, 'plate': None}
+
+def load_models():
+    """Load models once and cache them to save memory"""
+    if _models_cache['coco'] is None:
+        print("Loading YOLO models...")
+        _models_cache['coco'] = YOLO('yolov8n.pt')
+        _models_cache['plate'] = YOLO('license_plate_detector.pt')
+        print("Models loaded successfully!")
+    return _models_cache['coco'], _models_cache['plate']
+
+def cleanup_old_files(folder, max_age_hours=1):
+    """Delete files older than max_age_hours to free up space"""
+    try:
+        current_time = time.time()
+        for filename in os.listdir(folder):
+            filepath = os.path.join(folder, filename)
+            if os.path.isfile(filepath):
+                file_age = current_time - os.path.getmtime(filepath)
+                if file_age > max_age_hours * 3600:
+                    os.remove(filepath)
+                    print(f"Cleaned up old file: {filename}")
+            elif os.path.isdir(filepath):
+                dir_age = current_time - os.path.getmtime(filepath)
+                if dir_age > max_age_hours * 3600:
+                    shutil.rmtree(filepath)
+                    print(f"Cleaned up old directory: {filename}")
+    except Exception as e:
+        print(f"Cleanup error: {e}")
+
 def download_model_if_needed(filename, url=None):
     """Download model file if it doesn't exist"""
     if not os.path.exists(filename):
@@ -48,25 +81,28 @@ def download_model_if_needed(filename, url=None):
 # download_model_if_needed('license_plate_detector.pt', LICENSE_PLATE_URL)
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-in-production'
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['OUTPUT_FOLDER'] = 'outputs'
-app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500MB max file size
+app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-in-production')
+app.config['UPLOAD_FOLDER'] = '/tmp/uploads' if os.environ.get('RENDER') else 'uploads'
+app.config['OUTPUT_FOLDER'] = '/tmp/outputs' if os.environ.get('RENDER') else 'outputs'
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max for memory efficiency
 app.config['ALLOWED_EXTENSIONS'] = {'mp4', 'avi', 'mov', 'mkv'}
 
 # Create folders if they don't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 
+# Cleanup old files on startup
+cleanup_old_files(app.config['UPLOAD_FOLDER'], max_age_hours=1)
+cleanup_old_files(app.config['OUTPUT_FOLDER'], max_age_hours=1)
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def process_video(video_path, output_folder):
-    """Process video with ANPR and return paths to results"""
+    """Process video with ANPR and return paths to results - Memory optimized"""
     try:
-        # Load models
-        coco_model = YOLO('yolov8n.pt')
-        license_plate_detector = YOLO('license_plate_detector.pt')
+        # Load cached models
+        coco_model, license_plate_detector = load_models()
         
         mot_tracker = Sort()
         
@@ -83,12 +119,17 @@ def process_video(video_path, output_folder):
         
         print(f"Processing {total_frames} frames...")
         
+        # Process in smaller batches to save memory
+        batch_size = 50
+        
         while ret:
             frame_nmr += 1
             ret, frame = cap.read()
             
-            if frame_nmr % 50 == 0:
+            if frame_nmr % batch_size == 0:
                 print(f"Processing frame {frame_nmr}/{total_frames}")
+                # Force garbage collection every batch
+                gc.collect()
             
             if ret:
                 results[frame_nmr] = {}
@@ -269,11 +310,41 @@ def upload_file():
 
 @app.route('/download/<timestamp>/<filename>')
 def download_file(timestamp, filename):
+    """Download file and auto-delete after sending"""
     filepath = os.path.join(app.config['OUTPUT_FOLDER'], timestamp, filename)
-    return send_file(filepath, as_attachment=True)
+    
+    @after_this_request
+    def cleanup_files(response):
+        """Delete files after download completes"""
+        try:
+            # Delete the specific file
+            if os.path.exists(filepath):
+                os.remove(filepath)
+            
+            # Delete the timestamp folder if empty
+            folder = os.path.join(app.config['OUTPUT_FOLDER'], timestamp)
+            if os.path.exists(folder) and not os.listdir(folder):
+                os.rmdir(folder)
+            
+            # Also delete uploaded video
+            uploaded_files = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if f.startswith(timestamp)]
+            for uploaded_file in uploaded_files:
+                upload_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_file)
+                if os.path.exists(upload_path):
+                    os.remove(upload_path)
+            
+            print(f"Cleaned up files for timestamp: {timestamp}")
+            gc.collect()  # Force garbage collection
+        except Exception as e:
+            print(f"Cleanup error: {e}")
+        
+        return response
+    
+    return send_file(filepath, as_attachment=True, download_name=filename)
 
 @app.route('/video/<timestamp>/<filename>')
 def serve_video(timestamp, filename):
+    """Serve video for preview with auto-cleanup on close"""
     filepath = os.path.join(app.config['OUTPUT_FOLDER'], timestamp, filename)
     return send_file(filepath, mimetype='video/x-msvideo')
 
