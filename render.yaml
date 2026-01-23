@@ -6,8 +6,8 @@ services:
     runtime: python
     region: oregon
     plan: free # 512MB RAM
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && chmod +x start.sh
-    startCommand: ./start.sh
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && python -c "import site; import shutil; shutil.copy('sitecustomize.py', site.getsitepackages()[0])"
+    startCommand: streamlit run streamlit_app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0

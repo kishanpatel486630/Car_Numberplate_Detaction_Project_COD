@@ -1,0 +1,11 @@
+# Hugging Face Spaces Requirements
+streamlit
+ultralytics
+opencv-python-headless
+pandas
+scipy
+filterpy
+torch
+torchvision
+pillow
+lapx
