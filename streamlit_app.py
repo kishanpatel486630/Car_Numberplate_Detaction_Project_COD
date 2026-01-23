@@ -1,19 +1,49 @@
 """
-PlateVision AI - Streamlit Version
+PlateVision AI - Streamlit Version (Lightweight & Memory Optimized)
 Automatic Number Plate Recognition using YOLOv8
 """
+import os
+import sys
+
+# Set env vars BEFORE any imports
+os.environ['YOLO_VERBOSE'] = 'False'
+os.environ['ULTRALYTICS_HUB_ENABLED'] = 'False'
+os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ['FOR_DISABLE_CONSOLE_CTRL_HANDLER'] = '1'
+
+# Disable signal handling globally
+import signal
+signal.signal = lambda *args, **kwargs: None
+
 import streamlit as st
 import cv2
 import gc
-import os
 import tempfile
 import time
 from pathlib import Path
 import pandas as pd
-from ultralytics import YOLO
 import torch
 from PIL import Image
 import numpy as np
+
+# Import YOLO lazily to avoid signal issues at module load
+YOLO = None
+
+def get_yolo():
+    """Lazy import of YOLO to avoid signal handler issues"""
+    global YOLO
+    if YOLO is None:
+        # Disable all signal handling during import
+        import signal
+        old_signal = signal.signal
+        signal.signal = lambda *args, **kwargs: None
+        try:
+            from ultralytics import YOLO as _YOLO
+            YOLO = _YOLO
+        finally:
+            signal.signal = old_signal
+    return YOLO
+
 import util
 from sort.sort import Sort
 from util import get_car, read_license_plate, write_csv
@@ -64,12 +94,13 @@ def load_models():
     with st.spinner("🔄 Loading AI models... (first time only)"):
         gc.collect()
         
-        coco_model = YOLO('yolov8n.pt')
+        YOLO_class = get_yolo()  # Lazy import
+        coco_model = YOLO_class('yolov8n.pt')
         coco_model.overrides['verbose'] = False
         
         gc.collect()
         
-        plate_model = YOLO('license_plate_detector.pt')
+        plate_model = YOLO_class('license_plate_detector.pt')
         plate_model.overrides['verbose'] = False
         
         gc.collect()
