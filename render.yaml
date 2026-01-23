@@ -6,8 +6,8 @@ services:
     runtime: python
     region: oregon
     plan: free # 512MB RAM
-    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && python -c "import site; import shutil; shutil.copy('sitecustomize.py', site.getsitepackages()[0])"
-    startCommand: streamlit run streamlit_app.py --server.port=$PORT --server.address=0.0.0.0 --server.headless=true
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: python run.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
@@ -15,6 +15,11 @@ services:
         value: "1"
       - key: RENDER
         value: "1"
+      # Disable Ultralytics telemetry and signals
+      - key: YOLO_VERBOSE
+        value: "False"
+      - key: ULTRALYTICS_HUB_ENABLED
+        value: "False"
       # Disable signal handling for threading compatibility
       - key: YOLO_VERBOSE
         value: "False"

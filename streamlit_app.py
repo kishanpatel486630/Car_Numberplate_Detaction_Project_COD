@@ -1,15 +1,11 @@
 """
-PlateVision AI - Streamlit Version (Lightweight & Memory Optimized)
+PlateVision AI - Streamlit Version
 Automatic Number Plate Recognition using YOLOv8
-Note: sitecustomize.py patches signals automatically at Python startup
 """
-import os
-os.environ['YOLO_VERBOSE'] = 'False'
-os.environ['ULTRALYTICS_HUB_ENABLED'] = 'False'
-
 import streamlit as st
 import cv2
 import gc
+import os
 import tempfile
 import time
 from pathlib import Path
